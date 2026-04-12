@@ -1,11 +1,9 @@
-[phases.setup]
-nixPkgs = ["python311"]
-
-[phases.install]
-cmds = ["pip install -r requirements.txt"]
-
-[phases.build]
-cmds = ["python manage.py collectstatic --noinput"]
-
-[start]
-cmd = "gunicorn email_spam_classifier.wsgi --bind 0.0.0.0:$PORT"
+{
+    "build": {
+        "builder": "NIXPACKS"
+    },
+    "deploy": {
+        "startCommand": "gunicorn email_spam_classifier.wsgi --bind 0.0.0.0:$PORT",
+        "restartPolicyType": "ON_FAILURE"
+    }
+}
