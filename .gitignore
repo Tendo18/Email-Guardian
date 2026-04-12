@@ -1,8 +1,16 @@
 venv/
 __pycache__/
+**/__pycache__/
 *.pyc
+*.pyo
 db.sqlite3
 models/
 data/
 .env
 *.joblib
+*.csv
+staticfiles/
+*.bz2
+*.zip
+*.tar
+*.gz
