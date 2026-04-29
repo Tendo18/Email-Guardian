@@ -13,18 +13,25 @@ class ClassifierConfig(AppConfig):
         if "migrate" in sys.argv or "makemigrations" in sys.argv:
             return
 
-        try:
-            from classifier.model_service import ModelService
-            service = ModelService.get_instance()
-            loaded = service.load()
+        import threading
 
-            if not loaded:
-                logger.info("No model found — training synthetic model at startup...")
-                from classifier.training import train
+        def load_or_train():
+            try:
+                from classifier.model_service import ModelService
                 from django.conf import settings
-                train(output_dir=str(settings.MODELS_DIR))
-                service.reload()
-                logger.info("Startup training complete.")
 
-        except Exception as e:
-            logger.warning(f"Startup model loading failed: {e}")
+                service = ModelService.get_instance()
+                loaded = service.load()
+
+                if not loaded:
+                    logger.info("No model found — training synthetic model in background...")
+                    from classifier.training import train
+                    train(output_dir=str(settings.MODELS_DIR))
+                    service.reload()
+                    logger.info("Background training complete — model is ready.")
+
+            except Exception as e:
+                logger.warning(f"Model loading/training failed: {e}")
+
+        thread = threading.Thread(target=load_or_train, daemon=True)
+        thread.start()
