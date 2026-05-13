@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: email-guardian
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py migrate --noinput && gunicorn email_spam_classifier.wsgi --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: PYTHON_VERSION
+        value: 3.11.0
